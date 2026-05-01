@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package github.com.igoroutine_courses.microservices.ecommerce.notifications.v1;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/igoroutine_courses/microservices/ecommerce/notifications/v1;notificationsv1";
+
+service Notifications {
+  rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+}
+
+message SendMessageRequest {
+  int64 order_id = 1;
+  OrderStatus status = 2;
+  int64 user_id = 3;
+}
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_NEW = 1;
+  ORDER_STATUS_AWAITING_PAYMENT = 2;
+  ORDER_STATUS_FAILED = 3;
+  ORDER_STATUS_PAID = 4;
+  ORDER_STATUS_CANCELLED = 5;
+}

@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package github.com.igoroutine_courses.microservices.ecommerce.loms.v1;
+
+option go_package = "github.com/igoroutine-courses/microservices.ecommerce.pkg/generated/loms/api/loms/v1;loms";
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/descriptor.proto";
+import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+service Loms {
+  rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse) {
+    option (google.api.http) = {
+      post: "/v1/order/create"
+      body: "*"
+    };
+  }
+
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse) {
+    option (google.api.http) = {
+      post: "/v1/order/info"
+      body: "*"
+    };
+  }
+
+  rpc PayOrder(PayOrderRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/order/pay"
+      body: "*"
+    };
+  }
+
+  rpc CancelOrder(CancelOrderRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/order/cancel"
+      body: "*"
+    };
+  }
+}
+
+message Item {
+  uint32 sku = 1;
+  uint32 count = 2;
+}
+
+message CreateOrderRequest{
+  int64 user_id = 1;
+  repeated Item items = 2;
+}
+
+message CreateOrderResponse{
+  int64 order_id = 1;
+}
+
+message GetOrderRequest{
+  int64 order_id = 1;
+}
+
+message GetOrderResponse{
+  OrderStatus status = 1;
+  int64 user_id = 2;
+  repeated Item items = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message PayOrderRequest{
+  int64 order_id = 1;
+}
+
+message CancelOrderRequest{
+  int64 order_id = 1;
+}
+
+enum OrderStatus {
+  ORDER_STATUS_UNSPECIFIED = 0;
+  ORDER_STATUS_NEW = 1;
+  ORDER_STATUS_AWAITING_PAYMENT = 2;
+  ORDER_STATUS_FAILED = 3;
+  ORDER_STATUS_PAID = 4;
+  ORDER_STATUS_CANCELLED = 5;
+}

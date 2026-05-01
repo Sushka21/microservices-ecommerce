@@ -1,0 +1,26 @@
+version: "3.1"
+
+services:
+  integration-tests:
+    build:
+      context: .
+      dockerfile: ./integration-tests/Dockerfile
+    hostname: integration-tests
+    depends_on:
+      - cart
+      - loms
+    environment:
+      CART1_GRPC_ADDR: "cart:50051"
+      CART2_GRPC_ADDR: "cart-2:50061"
+      CART1_GATEWAY_ADDR: "cart:8080"
+      CART2_GATEWAY_ADDR: "cart-2:8090"
+      LOMS1_GRPC_ADDR: "loms:50052"
+      LOMS2_GRPC_ADDR: "loms-2:50062"
+      LOMS1_GATEWAY_ADDR: "loms:8081"
+      LOMS2_GATEWAY_ADDR: "loms-2:8091"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "ecommerce"
+      POSTGRES_USER: "ecommerce_user"
+      POSTGRES_PASSWORD: "12345"
+    command: ["go", "test", "-v", "./..."]

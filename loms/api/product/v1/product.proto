@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+
+package github.com.igoroutine_courses.microservices.ecommerce.product.v1;
+
+option go_package = "github.com/igoroutine-courses/microservices.ecommerce.pkg/generated/loms/api/product/v1;product";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/descriptor.proto";
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/product/create"
+      body: "*"
+    };
+  }
+
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse) {
+    option (google.api.http) = {
+      post: "/v1/product/info"
+      body: "*"
+    };
+  }
+  rpc ListProduct (ListProductsRequest) returns (ListProductsResponse) {
+    option (google.api.http) = {
+      post: "/v1/product/list"
+      body: "*"
+    };
+  }
+}
+
+message ListProductsRequest {
+  repeated uint32 skus = 1 [
+    json_name = "skus",
+    (validate.rules).repeated = {
+      min_items: 1
+      max_items: 100
+      unique: true
+    }
+  ];
+}
+
+message ProductInfo {
+  uint32 sku = 1 [json_name = "sku"];
+  string name = 2 [json_name = "name"];
+  uint32 price = 3 [json_name = "price"];
+}
+
+message ListProductsResponse {
+  repeated ProductInfo products = 1 [json_name = "products"];
+}
+
+message CreateProductRequest {
+  string name = 1 [json_name = "name"];
+  uint32 price = 2 [json_name = "price"];
+}
+
+message CreateProductResponse {
+  uint32 sku = 2 [json_name = "sku"];
+}
+
+message GetProductRequest {
+  uint32 sku = 2 [json_name = "sku"];
+}
+
+message GetProductResponse {
+  string name = 1 [json_name = "name"];
+  uint32 price = 2 [json_name = "price"];
+}

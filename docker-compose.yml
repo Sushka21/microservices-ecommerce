@@ -1,0 +1,151 @@
+version: "3.1"
+services:
+  cart:
+    image: cart
+    hostname: cart
+    build:
+      context: .
+      dockerfile: ./cart/Dockerfile
+    restart: unless-stopped
+    environment:
+      GRPC_PORT: "50051"
+      GRPC_GATEWAY_PORT: "8080"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "ecommerce"
+      POSTGRES_USER: "ecommerce_user"
+      POSTGRES_PASSWORD: "12345"
+      LOMS_GRPC_ADDR: "loms:50052"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      loms:
+        condition: service_started
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+
+  cart-2:
+    image: cart
+    hostname: cart-2
+    build:
+      context: .
+      dockerfile: ./cart/Dockerfile
+    restart: unless-stopped
+    environment:
+      GRPC_PORT: "50061"
+      GRPC_GATEWAY_PORT: "8090"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "ecommerce"
+      POSTGRES_USER: "ecommerce_user"
+      POSTGRES_PASSWORD: "12345"
+      LOMS_GRPC_ADDR: "loms-2:50062"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      loms-2:
+        condition: service_started
+      cart:
+        condition: service_started
+    ports:
+      - "8090:8090"
+      - "50061:50061"
+
+  loms:
+    image: loms
+    hostname: loms
+    build:
+      context: .
+      dockerfile: ./loms/Dockerfile
+    restart: unless-stopped
+    environment:
+      GRPC_PORT: "50052"
+      GRPC_GATEWAY_PORT: "8081"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "ecommerce"
+      POSTGRES_USER: "ecommerce_user"
+      POSTGRES_PASSWORD: "12345"
+      NOTIFICATIONS_GRPC_ADDR: "notifications:50053"
+      OUTBOX_WORKERS: "1"
+      OUTBOX_BATCH_SIZE: "10"
+      OUTBOX_FETCH_PERIOD: "200ms"
+      OUTBOX_IN_PROGRESS_TTL: "1s"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      notifications:
+        condition: service_started
+    ports:
+      - "50052:50052"
+      - "8081:8081"
+
+  loms-2:
+    image: loms
+    hostname: loms-2
+    build:
+      context: .
+      dockerfile: ./loms/Dockerfile
+    restart: unless-stopped
+    environment:
+      GRPC_PORT: "50062"
+      GRPC_GATEWAY_PORT: "8091"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: "ecommerce"
+      POSTGRES_USER: "ecommerce_user"
+      POSTGRES_PASSWORD: "12345"
+      NOTIFICATIONS_GRPC_ADDR: "notifications:50053"
+      OUTBOX_WORKERS: "1"
+      OUTBOX_BATCH_SIZE: "10"
+      OUTBOX_FETCH_PERIOD: "200ms"
+      OUTBOX_IN_PROGRESS_TTL: "1s"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      notifications:
+        condition: service_started
+      loms:
+        condition: service_started
+    ports:
+      - "50062:50062"
+      - "8091:8091"
+
+  notifications:
+    image: notifications
+    hostname: notifications
+    build:
+      context: .
+      dockerfile: ./notifications/Dockerfile
+    restart: unless-stopped
+    environment:
+      CALLBACK_ADDR: ""
+      GRPC_PORT: "50053"
+    ports:
+      - "50053:50053"
+
+  postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: "ecommerce"
+      POSTGRES_USER: "ecommerce_user"
+      POSTGRES_PASSWORD: "12345"
+      POSTGRES_PORT: "5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command:
+      - "postgres"
+      - "-c"
+      - "port=5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ecommerce_user -d ecommerce" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
