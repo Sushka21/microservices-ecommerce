@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/Sushka21/microservices-ecommerce/loms/internal/adapter/notifications/converter"
@@ -215,7 +214,7 @@ func (s *lomsService) OrderStatusChangedNotificationKindHandler(ctx context.Cont
 }
 
 func (s *lomsService) createOutboxStatusChanged(ctx context.Context, order *entity.Order) error {
-	key := s.createKey(order.ID, order.Status)
+	key := s.createKey(order.ID, order.UserID, order.Status)
 	body := port.OrderStatusChangedNotification{
 		OrderID: order.ID,
 		UserID:  order.UserID,
@@ -228,9 +227,6 @@ func (s *lomsService) createOutboxStatusChanged(ctx context.Context, order *enti
 	return s.outboxRepository.SendMessage(ctx, key, repository.KindNotification, DBbody)
 }
 
-func (s *lomsService) createKey(orderID int64, status entity.OrderStatus) string {
-	return strconv.FormatInt(orderID, 10) + "_" + string(status)
+func (s *lomsService) createKey(orderID, userID int64, status entity.OrderStatus) string {
+	return fmt.Sprintf("%d_%d_%s", userID, orderID, status)
 }
-
-
-

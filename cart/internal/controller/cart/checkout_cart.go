@@ -33,6 +33,3 @@ func (s *cartServer) CheckoutCart(ctx context.Context, req *cartv1.CheckoutCartR
 		OrderId: orderID,
 	}, nil
 }
-
-
-

@@ -4,7 +4,7 @@ vars:
   LOCAL_BIN: '{{.ROOT_DIR}}/bin'
   EASYP_BIN: "{{.LOCAL_BIN}}/easyp"
   GOIMPORTS_BIN: "{{.LOCAL_BIN}}/goimports"
-  GOLANGCI_LINT_VERSION: 'v1.64.5'
+  GOLANGCI_LINT_VERSION: 'v2.12.0'
 
 tasks:
   up:
@@ -46,7 +46,7 @@ tasks:
       - go run .github/update.go -force -hw {{.hw}}
 
   lint:
-    desc: Run golangci-lint
+    desc: "Run golangci-lint"
     cmds:
       - |
         if [ "${OS:-}" = "Windows_NT" ]; then
@@ -55,7 +55,7 @@ tasks:
           if [ ! -f "$LINT" ]; then
             echo "golangci-lint not found. Installing..."
             mkdir -p "{{.LOCAL_BIN}}"
-            GOBIN="{{.LOCAL_BIN}}" go install github.com/golangci/golangci-lint/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
+            GOBIN="{{.LOCAL_BIN}}" go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
           fi
         
           echo "Running golangci-lint..."
@@ -63,14 +63,14 @@ tasks:
             echo " -> $mod"
             (
               cd "$mod"
-              "$LINT" run --config=../.golangci.yaml --sort-results ./...
+              "$LINT" run --config=../.golangci.yaml
             )
           done
         else 
           if [ ! -x "{{.LOCAL_BIN}}/golangci-lint" ]; then
             echo "golangci-lint not found. Installing..."
             mkdir -p "{{.LOCAL_BIN}}"
-            GOBIN="{{.LOCAL_BIN}}" go install github.com/golangci/golangci-lint/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
+            GOBIN="{{.LOCAL_BIN}}" go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@{{.GOLANGCI_LINT_VERSION}}
           fi
         
           echo "Running golangci-lint..."
@@ -78,13 +78,13 @@ tasks:
             echo " -> $mod"
             (
               cd "$mod"
-              "{{.LOCAL_BIN}}/golangci-lint" run --config=../.golangci.yaml --sort-results ./...
+              "{{.LOCAL_BIN}}/golangci-lint" run --config=../.golangci.yaml
             )
           done
         fi
 
   repo-update:
-    silent: true
+    desc: "Sync repository"
     cmds:
       - |
         set -euo pipefail

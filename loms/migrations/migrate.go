@@ -25,6 +25,3 @@ func SetupPostgres(pool *pgxpool.Pool, logger *zap.Logger) error {
 	}
 	return nil
 }
-
-
-

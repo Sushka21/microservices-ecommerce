@@ -176,6 +176,3 @@ func toEntityStatus(status sqlcorder.LomsOrderStatus) entity.OrderStatus {
 		return entity.OrderStatusNew
 	}
 }
-
-
-

@@ -31,6 +31,3 @@ func (a *API) Register(grpcServer *grpc.Server) {
 	productv1.RegisterProductServiceServer(grpcServer, a.productServer)
 	stocksv1.RegisterStocksServer(grpcServer, a.stocksServer)
 }
-
-
-

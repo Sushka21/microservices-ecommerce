@@ -102,7 +102,12 @@ func (o *outboxImpl) worker(
 					kindHandler, errKind := o.globalHandler(message.Kind)
 
 					if errKind != nil {
-						o.logger.Error("unexpected kind", zap.Error(err))
+						o.logger.Error("unexpected kind",
+							zap.Error(errKind),
+							zap.Any("kind", message.Kind),
+							zap.String("key", key),
+							zap.ByteString("data", message.Data),
+						)
 						continue
 					}
 
@@ -140,6 +145,3 @@ func (o *outboxImpl) worker(
 		}
 	}
 }
-
-
-

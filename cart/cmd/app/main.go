@@ -25,4 +25,3 @@ func main() {
 		logger.Fatal("app stopped with error", zap.Error(err))
 	}
 }
-

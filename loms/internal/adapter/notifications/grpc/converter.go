@@ -21,6 +21,3 @@ func FromOrderStatus(orderStatus port.OrderStatus) notificationsv1.OrderStatus {
 		return notificationsv1.OrderStatus_ORDER_STATUS_UNSPECIFIED
 	}
 }
-
-
-

@@ -101,6 +101,3 @@ func (q *Queries) ListCartByUserId(ctx context.Context, userID int64) ([]ListCar
 	}
 	return items, nil
 }
-
-
-

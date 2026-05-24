@@ -32,6 +32,3 @@ func (s stocksServer) GetStock(ctx context.Context, req *stocksv1.GetStockReques
 		Count: count,
 	}, nil
 }
-
-
-

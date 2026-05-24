@@ -40,6 +40,3 @@ func (s *productServer) ListProduct(ctx context.Context, req *productv1.ListProd
 		Products: products,
 	}, nil
 }
-
-
-

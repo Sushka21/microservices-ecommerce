@@ -35,6 +35,3 @@ func (s *lomsServer) CreateOrder(ctx context.Context, req *lomsv1.CreateOrderReq
 		OrderId: orderID,
 	}, nil
 }
-
-
-

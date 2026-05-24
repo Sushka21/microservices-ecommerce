@@ -21,8 +21,6 @@ import (
 	prpductv1 "github.com/Sushka21/microservices-ecommerce/pkg/generated/loms/api/product/v1"
 	stocksv1 "github.com/Sushka21/microservices-ecommerce/pkg/generated/loms/api/stocks/v1"
 
-	notificationsv1 "github.com/Sushka21/microservices-ecommerce/pkg/generated/notifications/api/v1"
-
 	repoOrder "github.com/Sushka21/microservices-ecommerce/loms/internal/repository/order"
 	repoOutbox "github.com/Sushka21/microservices-ecommerce/loms/internal/repository/outbox"
 	repoProduct "github.com/Sushka21/microservices-ecommerce/loms/internal/repository/product"
@@ -32,7 +30,7 @@ import (
 	productUscase "github.com/Sushka21/microservices-ecommerce/loms/internal/usercase/product"
 	stocksUscase "github.com/Sushka21/microservices-ecommerce/loms/internal/usercase/stocks"
 
-	notificationsgrpc "github.com/Sushka21/microservices-ecommerce/loms/internal/adapter/notifications/grpc"
+	"github.com/Sushka21/microservices-ecommerce/loms/internal/adapter/notifications/kafka"
 
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -40,6 +38,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
+
+var ErrKafkaBrokersNotConfigured = errors.New("no kafka brokers configured (KAFKA_BROKERS)")
 
 func Run(logger *zap.Logger, cfg *config.Config) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -78,19 +78,14 @@ func Run(logger *zap.Logger, cfg *config.Config) error {
 	productRepo := repoProduct.NewPostgresRepository(dbpool)
 	outboxRepo := repoOutbox.NewOutboxRepository(dbpool)
 
-	notificationsvConn, err := grpc.NewClient(
-		cfg.Clients.NotificationsGrpcAddr, grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	kafkaBrokers := cfg.ConstructKafkaBrokers()
 
-	if err != nil {
-		return err
+	if len(kafkaBrokers) == 0 {
+		logger.Error("no kafka brokers configured (KAFKA_BROKERS)")
+		return ErrKafkaBrokersNotConfigured
 	}
 
-	defer notificationsvConn.Close()
-
-	notificationsClient := notificationsgrpc.NewNotificationsClient(
-		notificationsv1.NewNotificationsClient(notificationsvConn))
-
+	notificationsClient := kafka.New(kafkaBrokers, cfg.Kafka.Topic)
 	lomsService := lomsUscase.NewLomsService(ordeRepo, stocksRepo, transactor, notificationsClient, outboxRepo)
 	productService := productUscase.NewProductService(productRepo)
 	stocksService := stocksUscase.NewStocksService(stocksRepo)
@@ -217,6 +212,3 @@ func corsHandler(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
-
-

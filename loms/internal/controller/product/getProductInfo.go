@@ -33,6 +33,3 @@ func (s *productServer) GetProduct(ctx context.Context, req *productv1.GetProduc
 		Price: productInfo.Price,
 	}, nil
 }
-
-
-

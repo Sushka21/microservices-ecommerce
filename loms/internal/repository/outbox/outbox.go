@@ -115,6 +115,3 @@ func (o *outboxRepository) MarkAsRetryable(ctx context.Context, idempotencyKeys 
 
 	return nil
 }
-
-
-

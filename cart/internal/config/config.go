@@ -51,6 +51,3 @@ func New() (*Config, error) {
 	err := env.Parse(&cfg)
 	return &cfg, err
 }
-
-
-

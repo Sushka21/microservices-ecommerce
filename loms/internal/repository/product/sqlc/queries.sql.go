@@ -65,6 +65,3 @@ func (q *Queries) ListProductBySkus(ctx context.Context, skus []int32) ([]LomsPr
 	}
 	return items, nil
 }
-
-
-

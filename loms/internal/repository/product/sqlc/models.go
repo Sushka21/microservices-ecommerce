@@ -9,6 +9,3 @@ type LomsProduct struct {
 	Names string `json:"names"`
 	Price int32  `json:"price"`
 }
-
-
-

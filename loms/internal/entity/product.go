@@ -13,6 +13,3 @@ type ProductInfo struct {
 	Price uint32
 	Count uint64
 }
-
-
-

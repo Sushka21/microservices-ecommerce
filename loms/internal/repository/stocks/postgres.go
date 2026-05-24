@@ -130,6 +130,3 @@ func (r *postgresRepository) RemoveReservedStocks(ctx context.Context, orderID i
 	}
 	return nil
 }
-
-
-

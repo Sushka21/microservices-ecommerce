@@ -25,6 +25,3 @@ func (s *productServer) CreateProduct(ctx context.Context, req *productv1.Create
 		Sku: sku,
 	}, nil
 }
-
-
-

@@ -23,6 +23,3 @@ func New(notificationsSetvice notifications.Service, logger *zap.Logger) *API {
 func (a *API) Register(grpcServer *grpc.Server) {
 	notificationsv1.RegisterNotificationsServer(grpcServer, a.NotificationsServer)
 }
-
-
-

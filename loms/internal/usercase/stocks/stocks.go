@@ -36,6 +36,3 @@ func (s *stocksService) GetStock(ctx context.Context, sku uint32) (uint64, error
 	}
 	return count, err
 }
-
-
-

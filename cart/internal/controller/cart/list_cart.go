@@ -46,6 +46,3 @@ func (s *cartServer) ListCart(req *cartv1.ListCartRequest, stream cartv1.Cart_Li
 
 	return stream.Send(resp)
 }
-
-
-

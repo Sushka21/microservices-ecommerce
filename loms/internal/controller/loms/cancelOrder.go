@@ -31,6 +31,3 @@ func (s *lomsServer) CancelOrder(ctx context.Context, req *lomsv1.CancelOrderReq
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-

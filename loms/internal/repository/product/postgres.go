@@ -98,6 +98,3 @@ func (r *postgresRepository) ListProduct(ctx context.Context, skus []uint32) ([]
 
 	return productInfo, nil
 }
-
-
-

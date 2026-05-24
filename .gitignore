@@ -17,3 +17,4 @@ pkg/generated
 !ci.yaml
 mocks
 !sqlc.yaml
+!easyp.yaml

@@ -118,6 +118,3 @@ func TestStocksService_GetStock_Err_Gomock(t *testing.T) {
 	require.EqualValues(t, 0, count)
 	require.ErrorIs(t, err, expectedErr)
 }
-
-
-

@@ -30,6 +30,3 @@ func NewProductServer(productService ProductService, logger *zap.Logger) *produc
 		logger:         logger,
 	}
 }
-
-
-

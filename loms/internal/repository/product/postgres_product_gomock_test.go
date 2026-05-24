@@ -262,6 +262,3 @@ func TestPostgresRepository_ListProduct_Err_Gomock(t *testing.T) {
 	require.Nil(t, products)
 	require.ErrorIs(t, err, expectedErr)
 }
-
-
-

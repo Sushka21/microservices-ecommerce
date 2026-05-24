@@ -23,6 +23,3 @@ func (s *cartServer) ClearCart(ctx context.Context, req *cartv1.ClearCartRequest
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-

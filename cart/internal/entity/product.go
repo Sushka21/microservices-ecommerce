@@ -6,6 +6,3 @@ type Product struct {
 	Price uint32
 	Count uint32
 }
-
-
-

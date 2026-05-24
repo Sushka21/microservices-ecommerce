@@ -37,6 +37,3 @@ var (
 	ErrOrderFailed        = errors.New("order is failed")
 	ErrUnknownOrderStatus = errors.New("unknown order status")
 )
-
-
-

@@ -30,6 +30,3 @@ func (s *cartServer) DeleteItem(ctx context.Context, req *cartv1.DeleteItemReque
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-

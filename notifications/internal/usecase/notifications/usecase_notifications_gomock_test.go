@@ -176,6 +176,3 @@ func TestNotificationsService_SendMessage_ContextCanceled(t *testing.T) {
 	require.Error(t, err)
 	require.ErrorIs(t, err, ErrCallbackRequestFailed)
 }
-
-
-

@@ -23,6 +23,3 @@ type Data struct {
 	Kind           Kind
 	Data           []byte
 }
-
-
-

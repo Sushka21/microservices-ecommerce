@@ -108,6 +108,3 @@ func (s *cartService) CheckoutCart(ctx context.Context, userID int64) (int64, er
 
 	return orderID, nil
 }
-
-
-

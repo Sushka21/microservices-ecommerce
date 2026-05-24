@@ -6,6 +6,3 @@ type Item struct {
 	Name  string
 	Price uint32
 }
-
-
-

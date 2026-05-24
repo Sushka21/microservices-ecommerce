@@ -72,6 +72,3 @@ func mapProductError(err error) error {
 		return fmt.Errorf("product grpc call failed: %w", err)
 	}
 }
-
-
-

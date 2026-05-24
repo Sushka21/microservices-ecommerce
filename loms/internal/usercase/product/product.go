@@ -67,6 +67,3 @@ func (s *productService) ListProduct(ctx context.Context, skus []uint32) ([]enti
 
 	return productInfo, nil
 }
-
-
-

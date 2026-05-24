@@ -24,7 +24,7 @@ func TestLomsServer_CancelOrder_Success_Gomock(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	lomsService := mocks.NewMockLomsService(ctrl)
-	srv := NewLomsServer(lomsService, &zap.Logger{})
+	srv := NewLomsServer(lomsService, zap.NewNop())
 
 	req := &lomsv1.CancelOrderRequest{
 		OrderId: 1,
@@ -73,7 +73,7 @@ func TestLomsServer_CancelOrder_Err_Gomock(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 
 			lomsService := mocks.NewMockLomsService(ctrl)
-			srv := NewLomsServer(lomsService, &zap.Logger{})
+			srv := NewLomsServer(lomsService, zap.NewNop())
 
 			req := &lomsv1.CancelOrderRequest{
 				OrderId: 1,
@@ -102,7 +102,7 @@ func TestLomsServer_CreateOrder_Success_Gomock(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	lomsService := mocks.NewMockLomsService(ctrl)
-	srv := NewLomsServer(lomsService, &zap.Logger{})
+	srv := NewLomsServer(lomsService, zap.NewNop())
 
 	req := &lomsv1.CreateOrderRequest{
 		UserId: 1,
@@ -168,7 +168,7 @@ func TestLomsServer_CreateOrder_Err_Gomock(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 
 			lomsService := mocks.NewMockLomsService(ctrl)
-			srv := NewLomsServer(lomsService, &zap.Logger{})
+			srv := NewLomsServer(lomsService, zap.NewNop())
 
 			req := &lomsv1.CreateOrderRequest{
 				UserId: 1,
@@ -210,7 +210,7 @@ func TestLomsServer_GetOrder_Success_Gomock(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	lomsService := mocks.NewMockLomsService(ctrl)
-	srv := NewLomsServer(lomsService, &zap.Logger{})
+	srv := NewLomsServer(lomsService, zap.NewNop())
 
 	req := &lomsv1.GetOrderRequest{
 		OrderId: 1,
@@ -277,7 +277,7 @@ func TestLomsServer_GetOrder_Err_Gomock(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 
 			lomsService := mocks.NewMockLomsService(ctrl)
-			srv := NewLomsServer(lomsService, &zap.Logger{})
+			srv := NewLomsServer(lomsService, zap.NewNop())
 
 			req := &lomsv1.GetOrderRequest{
 				OrderId: 1,
@@ -306,7 +306,7 @@ func TestLomsServer_PayOrder_Success_Gomock(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	lomsService := mocks.NewMockLomsService(ctrl)
-	srv := NewLomsServer(lomsService, &zap.Logger{})
+	srv := NewLomsServer(lomsService, zap.NewNop())
 
 	req := &lomsv1.PayOrderRequest{
 		OrderId: 1,
@@ -370,7 +370,7 @@ func TestLomsServer_PayOrder_Err_Gomock(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 
 			lomsService := mocks.NewMockLomsService(ctrl)
-			srv := NewLomsServer(lomsService, &zap.Logger{})
+			srv := NewLomsServer(lomsService, zap.NewNop())
 
 			req := &lomsv1.PayOrderRequest{
 				OrderId: 1,
@@ -391,6 +391,3 @@ func TestLomsServer_PayOrder_Err_Gomock(t *testing.T) {
 		})
 	}
 }
-
-
-

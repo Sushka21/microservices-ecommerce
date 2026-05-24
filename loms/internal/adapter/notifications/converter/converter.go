@@ -21,6 +21,3 @@ func FromOrderStatus(orderStatus entity.OrderStatus) port.OrderStatus {
 		return port.OrderStatusUnspecified
 	}
 }
-
-
-

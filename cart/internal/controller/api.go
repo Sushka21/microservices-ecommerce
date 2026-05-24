@@ -23,6 +23,3 @@ func New(itemService cart.ItemService, cartService cart.CartService, logger *zap
 func (a *API) Register(grpcServer *grpc.Server) {
 	cartv1.RegisterCartServer(grpcServer, a.cartServer)
 }
-
-
-

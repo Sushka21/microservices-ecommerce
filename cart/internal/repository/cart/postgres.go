@@ -73,6 +73,3 @@ func (r *postgresRepository) ListCart(ctx context.Context, userID int64) ([]enti
 func (r *postgresRepository) ClearCart(ctx context.Context, userID int64) error {
 	return r.getQueries(ctx).ClearCart(ctx, userID)
 }
-
-
-

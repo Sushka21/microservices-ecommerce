@@ -124,6 +124,3 @@ func (q *Queries) UpsertReservedStock(ctx context.Context, arg UpsertReservedSto
 	_, err := q.db.Exec(ctx, upsertReservedStock, arg.Sku, arg.OrderID, arg.Count)
 	return err
 }
-
-
-

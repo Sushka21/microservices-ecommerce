@@ -32,6 +32,3 @@ func (s *cartServer) AddItem(ctx context.Context, req *cartv1.AddItemRequest) (*
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-

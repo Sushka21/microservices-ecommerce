@@ -51,7 +51,7 @@ func TestNotificationsServer_SendMessage_Success_Gomock(t *testing.T) {
 func TestNotificationsServer_SendMessage_ServiceErr_Gomock(t *testing.T) {
 	t.Parallel()
 
-	serviceErr := errors.New("send message error")
+	serviceErr := errors.New("internal error")
 
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
@@ -88,6 +88,3 @@ func TestNotificationsServer_SendMessage_ServiceErr_Gomock(t *testing.T) {
 	require.Equal(t, codes.Internal, st.Code())
 	require.Contains(t, st.Message(), serviceErr.Error())
 }
-
-
-

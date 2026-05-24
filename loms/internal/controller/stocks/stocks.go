@@ -28,6 +28,3 @@ func NewStocksServer(stocksService StocksService, logger *zap.Logger) *stocksSer
 		logger:        logger,
 	}
 }
-
-
-

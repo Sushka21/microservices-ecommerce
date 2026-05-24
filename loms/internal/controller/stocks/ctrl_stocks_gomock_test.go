@@ -23,7 +23,7 @@ func TestStocksServer_GetStock_Success_Gomock(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	stocksService := mocks.NewMockStocksService(ctrl)
-	srv := NewStocksServer(stocksService, &zap.Logger{})
+	srv := NewStocksServer(stocksService, zap.NewNop())
 
 	req := &stocksv1.GetStockRequest{
 		Sku: 100,
@@ -69,7 +69,7 @@ func TestStocksServer_GetStock_Err_Gomock(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 
 			stocksService := mocks.NewMockStocksService(ctrl)
-			srv := NewStocksServer(stocksService, &zap.Logger{})
+			srv := NewStocksServer(stocksService, zap.NewNop())
 
 			req := &stocksv1.GetStockRequest{
 				Sku: 100,
@@ -98,7 +98,7 @@ func TestStocksServer_SetStock_Success_Gomock(t *testing.T) {
 	t.Cleanup(ctrl.Finish)
 
 	stocksService := mocks.NewMockStocksService(ctrl)
-	srv := NewStocksServer(stocksService, &zap.Logger{})
+	srv := NewStocksServer(stocksService, zap.NewNop())
 
 	req := &stocksv1.SetStockRequest{
 		Sku:   100,
@@ -144,7 +144,7 @@ func TestStocksServer_SetStock_Err_Gomock(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 
 			stocksService := mocks.NewMockStocksService(ctrl)
-			srv := NewStocksServer(stocksService, &zap.Logger{})
+			srv := NewStocksServer(stocksService, zap.NewNop())
 
 			req := &stocksv1.SetStockRequest{
 				Sku:   100,
@@ -166,6 +166,3 @@ func TestStocksServer_SetStock_Err_Gomock(t *testing.T) {
 		})
 	}
 }
-
-
-

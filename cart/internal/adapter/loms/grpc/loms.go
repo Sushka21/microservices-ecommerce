@@ -86,6 +86,3 @@ func mapCreateOrderError(err error) error {
 		return fmt.Errorf("%w: %v", port.ErrOrderCreateFailed, err)
 	}
 }
-
-
-

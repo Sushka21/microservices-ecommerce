@@ -65,6 +65,3 @@ func ExtractTx(ctx context.Context) (pgx.Tx, error) {
 func injectTx(ctx context.Context, tx pgx.Tx) context.Context {
 	return context.WithValue(ctx, txKey{}, tx)
 }
-
-
-

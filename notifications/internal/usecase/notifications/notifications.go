@@ -111,5 +111,15 @@ func (s *notificationsService) SendMessage(ctx context.Context, userID, orderID 
 	return nil
 }
 
-
-
+func (s *notificationsService) SendMessageNotificationsKindHandler(ctx context.Context, data []byte) error {
+	var body callbackPayload
+	if err := json.Unmarshal(data, &body); err != nil {
+		return fmt.Errorf("unmarshal send message notifications ,%w", err)
+	}
+	return s.SendMessage(
+		ctx,
+		body.UserID,
+		body.OrderID,
+		body.Status,
+	)
+}

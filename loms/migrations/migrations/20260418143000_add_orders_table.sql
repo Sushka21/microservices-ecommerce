@@ -5,9 +5,11 @@ create schema IF not exists loms;
 
 create type loms.order_status as enum('new', 'awaiting payment', 'failed', 'paid', 'cancelled');
 
+
+create sequence if not exists loms.orders_id_seq;
 create table loms.orders
 (
-       id          bigint generated always as identity primary key,
+       id          bigint            primary key default nextval('loms.orders_id_seq'),
        user_id     bigint            not null,
        status      loms.order_status not null default 'new',
        created_at  TIMESTAMPTZ       not null default now(),

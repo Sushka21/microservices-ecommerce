@@ -493,6 +493,3 @@ func (m *mockListCartServer) Send(resp *cartv1.ListCartResponse) error {
 	m.cart = append(m.cart, resp)
 	return nil
 }
-
-
-

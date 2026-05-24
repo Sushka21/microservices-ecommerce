@@ -41,6 +41,3 @@ func (c notificationsClient) SendMessage(
 
 	return nil
 }
-
-
-

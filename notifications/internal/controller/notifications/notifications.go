@@ -27,6 +27,3 @@ func NewNotificationsServer(
 		logger:              logger,
 	}
 }
-
-
-

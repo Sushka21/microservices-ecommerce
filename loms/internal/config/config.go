@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/caarlos0/env/v10"
@@ -40,8 +41,26 @@ type (
 			FetchPeriod time.Duration `env:"OUTBOX_FETCH_PERIOD" envDefault:"5s"`
 			TTL         time.Duration `env:"OUTBOX_IN_PROGRESS_TTL" envDefault:"60s"`
 		}
+
+		Kafka struct {
+			Brokers string `env:"KAFKA_BROKERS" envDefault:"localhost:9092"`
+			Topic   string `env:"KAFKA_NOTIFICATIONS_TOPIC" envDefault:"order_status_notifications"`
+		}
 	}
 )
+
+func (c *Config) ConstructKafkaBrokers() []string {
+	addrs := strings.Split(c.Kafka.Brokers, ",")
+	result := make([]string, 0, len(addrs))
+
+	for _, addr := range addrs {
+		if addr = strings.TrimSpace(addr); addr != "" {
+			result = append(result, addr)
+		}
+	}
+
+	return result
+}
 
 func (c *Config) ConstructPostgresURL() string {
 	hostPort := net.JoinHostPort(c.PG.Host, c.PG.Port)
@@ -59,6 +78,3 @@ func New() (*Config, error) {
 	err := env.Parse(&cfg)
 	return &cfg, err
 }
-
-
-

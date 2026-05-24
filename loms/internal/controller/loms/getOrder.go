@@ -37,6 +37,3 @@ func (s *lomsServer) GetOrder(ctx context.Context, req *lomsv1.GetOrderRequest) 
 		UpdatedAt: timestamppb.New(order.UpdatedAt),
 	}, nil
 }
-
-
-

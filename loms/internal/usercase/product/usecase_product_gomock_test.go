@@ -270,6 +270,3 @@ func TestProductService_ListProduct_Err_Gomock(t *testing.T) {
 		})
 	}
 }
-
-
-

@@ -63,6 +63,3 @@ type LomsOrder struct {
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
-
-
-

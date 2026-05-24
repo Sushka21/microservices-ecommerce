@@ -327,6 +327,3 @@ func TestOutboxRepository_MarkAsRetryable_Err_Gomock(t *testing.T) {
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
 }
-
-
-

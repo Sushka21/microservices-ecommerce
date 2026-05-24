@@ -104,6 +104,3 @@ func (q *Queries) SendOutboxMessage(ctx context.Context, arg SendOutboxMessagePa
 	_, err := q.db.Exec(ctx, sendOutboxMessage, arg.IdempotencyKey, arg.Data, arg.Kind)
 	return err
 }
-
-
-

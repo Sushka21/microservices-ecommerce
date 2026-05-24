@@ -77,7 +77,7 @@ func TestLomsService_CreateOrder_Success_Gomock(t *testing.T) {
 		outboxRepository.EXPECT().
 			SendMessage(
 				gomock.Any(),
-				srv.createKey(orderID, entity.OrderStatusAwaitingPayment),
+				srv.createKey(orderID, 1, entity.OrderStatusAwaitingPayment),
 				outbox.KindNotification,
 				gomock.Any(),
 			).
@@ -185,7 +185,7 @@ func TestLomsService_CreateOrder_Err_Gomock(t *testing.T) {
 					outboxRepository.EXPECT().
 						SendMessage(
 							gomock.Any(),
-							srv.createKey(orderID, entity.OrderStatusAwaitingPayment),
+							srv.createKey(orderID, userID, entity.OrderStatusAwaitingPayment),
 							outbox.KindNotification,
 							gomock.Any(),
 						).
@@ -337,7 +337,7 @@ func TestLomsService_PayOrder_Success_Gomock(t *testing.T) {
 		outboxRepository.EXPECT().
 			SendMessage(
 				gomock.Any(),
-				srv.createKey(orderID, entity.OrderStatusPaid),
+				srv.createKey(orderID, 1, entity.OrderStatusPaid),
 				outbox.KindNotification,
 				gomock.Any(),
 			).
@@ -484,7 +484,7 @@ func TestLomsService_PayOrder_Err_Gomock(t *testing.T) {
 						outboxRepository.EXPECT().
 							SendMessage(
 								gomock.Any(),
-								srv.createKey(tt.order.ID, entity.OrderStatusPaid),
+								srv.createKey(tt.order.ID, tt.order.UserID, entity.OrderStatusPaid),
 								outbox.KindNotification,
 								gomock.Any(),
 							).
@@ -560,7 +560,7 @@ func TestLomsService_CancelOrder_Success_Gomock(t *testing.T) {
 		outboxRepository.EXPECT().
 			SendMessage(
 				gomock.Any(),
-				srv.createKey(orderID, entity.OrderStatusCancelled),
+				srv.createKey(orderID, 1, entity.OrderStatusCancelled),
 				outbox.KindNotification,
 				gomock.Any(),
 			).
@@ -725,7 +725,7 @@ func TestLomsService_CancelOrder_Err_Gomock(t *testing.T) {
 						outboxRepository.EXPECT().
 							SendMessage(
 								gomock.Any(),
-								srv.createKey(tt.order.ID, entity.OrderStatusCancelled),
+								srv.createKey(tt.order.ID, tt.order.UserID, entity.OrderStatusCancelled),
 								outbox.KindNotification,
 								gomock.Any(),
 							).
@@ -854,10 +854,7 @@ func TestLomsService_CreateKey(t *testing.T) {
 
 	srv := &lomsService{}
 
-	key := srv.createKey(10, entity.OrderStatusPaid)
+	key := srv.createKey(10, 10, entity.OrderStatusPaid)
 
-	require.Equal(t, "10_"+string(entity.OrderStatusPaid), key)
+	require.Equal(t, "10_10_paid", key)
 }
-
-
-

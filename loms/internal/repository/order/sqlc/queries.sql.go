@@ -135,6 +135,3 @@ func (q *Queries) SetOrderStatus(ctx context.Context, arg SetOrderStatusParams) 
 	_, err := q.db.Exec(ctx, setOrderStatus, arg.Status, arg.ID)
 	return err
 }
-
-
-

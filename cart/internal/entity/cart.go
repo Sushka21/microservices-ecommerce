@@ -13,6 +13,3 @@ var (
 	ErrCartIsEmpty       = errors.New("cart is empty")
 	ErrItemNotFound      = errors.New("item not found")
 )
-
-
-

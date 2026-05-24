@@ -63,6 +63,3 @@ func (s *itemService) DeleteItem(ctx context.Context, userID int64, sku uint32) 
 	}
 	return nil
 }
-
-
-

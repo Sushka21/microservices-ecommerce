@@ -64,6 +64,3 @@ func ToOrderItems(items []*lomsv1.Item) []entity.OrderItem {
 	}
 	return orderItems
 }
-
-
-

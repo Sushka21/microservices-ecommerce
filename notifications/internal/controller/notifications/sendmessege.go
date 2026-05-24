@@ -36,6 +36,3 @@ func (s *Server) SendMessage(ctx context.Context, req *notificationsv1.SendMessa
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-

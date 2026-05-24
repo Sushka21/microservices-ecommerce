@@ -31,6 +31,3 @@ func NewLomsServer(lomsService LomsService, logger *zap.Logger) *lomsServer {
 		logger:      logger,
 	}
 }
-
-
-

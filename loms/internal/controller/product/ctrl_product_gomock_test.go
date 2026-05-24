@@ -27,7 +27,7 @@ func TestProductServer_CreateProduct_Success_Gomock(t *testing.T) {
 	// Arrange
 	productService := mocks.NewMockProductService(ctrl)
 
-	srv := NewProductServer(productService, &zap.Logger{})
+	srv := NewProductServer(productService, zap.NewNop())
 	req := &productv1.CreateProductRequest{
 		Name:  "apple",
 		Price: 500,
@@ -71,7 +71,7 @@ func TestProductServer_CreateProduct_err_Gomock(t *testing.T) {
 
 			productService := mocks.NewMockProductService(ctrl)
 
-			srv := NewProductServer(productService, &zap.Logger{})
+			srv := NewProductServer(productService, zap.NewNop())
 
 			req := &productv1.CreateProductRequest{
 				Name:  "shirt",
@@ -107,7 +107,7 @@ func TestProductServer_GetProduct_Success_Gomock(t *testing.T) {
 	// Arrange
 	productService := mocks.NewMockProductService(ctrl)
 
-	srv := NewProductServer(productService, &zap.Logger{})
+	srv := NewProductServer(productService, zap.NewNop())
 	req := &productv1.GetProductRequest{
 		Sku: 100,
 	}
@@ -160,7 +160,7 @@ func TestProductServer_GetProduct_err_Gomock(t *testing.T) {
 
 			productService := mocks.NewMockProductService(ctrl)
 
-			srv := NewProductServer(productService, &zap.Logger{})
+			srv := NewProductServer(productService, zap.NewNop())
 
 			req := &productv1.GetProductRequest{
 				Sku: 100,
@@ -195,7 +195,7 @@ func TestProductServer_ListProduct_Success_Gomock(t *testing.T) {
 	// Arrange
 	productService := mocks.NewMockProductService(ctrl)
 
-	srv := NewProductServer(productService, &zap.Logger{})
+	srv := NewProductServer(productService, zap.NewNop())
 	req := &productv1.ListProductsRequest{
 		Skus: []uint32{100, 200},
 	}
@@ -262,7 +262,7 @@ func TestProductServer_ListProduct_err_Gomock(t *testing.T) {
 
 			productService := mocks.NewMockProductService(ctrl)
 
-			srv := NewProductServer(productService, &zap.Logger{})
+			srv := NewProductServer(productService, zap.NewNop())
 
 			req := &productv1.ListProductsRequest{
 				Skus: []uint32{100, 200},
@@ -285,6 +285,3 @@ func TestProductServer_ListProduct_err_Gomock(t *testing.T) {
 		})
 	}
 }
-
-
-

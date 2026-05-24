@@ -30,6 +30,3 @@ func (s stocksServer) SetStock(ctx context.Context, req *stocksv1.SetStockReques
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-

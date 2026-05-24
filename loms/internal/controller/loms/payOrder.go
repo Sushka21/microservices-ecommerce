@@ -35,6 +35,3 @@ func (s *lomsServer) PayOrder(ctx context.Context, req *lomsv1.PayOrderRequest) 
 	}
 	return &emptypb.Empty{}, nil
 }
-
-
-
