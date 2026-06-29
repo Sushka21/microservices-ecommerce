@@ -3,9 +3,9 @@ module github.com/Sushka21/microservices-ecommerce/cart
 go 1.26.2
 
 require (
+	github.com/Sushka21/microservices-ecommerce/pkg v0.0.0-00010101000000-000000000000
 	github.com/caarlos0/env/v10 v10.0.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0
-	github.com/Sushka21/microservices-ecommerce/pkg v0.0.0-00010101000000-000000000000
 	github.com/jackc/pgx/v5 v5.9.2
 	github.com/pressly/goose/v3 v3.27.1
 	github.com/stretchr/testify v1.11.1

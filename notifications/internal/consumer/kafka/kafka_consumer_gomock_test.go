@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 
-	ckafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/Sushka21/microservices-ecommerce/notifications/internal/consumer/kafka/mocks"
-	repository "github.com/Sushka21/microservices-ecommerce/notifications/internal/repository/inbox"
+	ckafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 	"go.uber.org/zap"
@@ -18,7 +16,6 @@ import (
 func TestJoinBrokers(t *testing.T) {
 	t.Parallel()
 
-	// Arrange
 	tests := []struct {
 		name    string
 		brokers []string
@@ -49,30 +46,10 @@ func TestJoinBrokers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			// Act
 			got := joinBrokers(tt.brokers)
-
-			// Assert
 			require.Equal(t, tt.want, got)
 		})
 	}
-}
-
-func TestCreateKey(t *testing.T) {
-	t.Parallel()
-
-	// Arrange
-	orderID := int64(123)
-	status := "paid"
-	kind := repository.KindNotification
-
-	want := fmt.Sprintf("%d_%s_%v", orderID, status, kind)
-
-	// Act
-	got := createKey(orderID, status, kind)
-
-	// Assert
-	require.Equal(t, want, got)
 }
 
 func TestNewMainConsumer(t *testing.T) {
@@ -81,32 +58,26 @@ func TestNewMainConsumer(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	logger := zap.NewNop()
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 	producer := mocks.NewMockkafkaProducer(ctrl)
 	notifier := mocks.NewMocknotifier(ctrl)
-	transactor := mocks.NewMocktransactor(ctrl)
 
 	topic := "orders"
 
-	// Act
 	c := newMainConsumer(
 		logger,
 		consumer,
 		producer,
 		topic,
 		notifier,
-		transactor,
 	)
 
-	// Assert
 	require.NotNil(t, c)
 	require.Equal(t, logger, c.logger)
 	require.Equal(t, consumer, c.consumer)
 	require.Equal(t, producer, c.producer)
 	require.Equal(t, notifier, c.notifier)
-	require.Equal(t, transactor, c.transactor)
 	require.Equal(t, topic, c.topic)
 	require.Equal(t, "orders-dlq", c.dlqTopic)
 }
@@ -117,7 +88,6 @@ func TestMainConsumer_ProduceMessage_Success_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrangeа
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
 	c := &mainConsumer{
@@ -149,10 +119,7 @@ func TestMainConsumer_ProduceMessage_Success_Gomock(t *testing.T) {
 			return nil
 		})
 
-	// Act
 	err := c.produceMessage(context.Background(), topic, key, value)
-
-	// Assert
 	require.NoError(t, err)
 }
 
@@ -162,7 +129,6 @@ func TestMainConsumer_ProduceMessage_ProducerError_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
 	c := &mainConsumer{
@@ -176,7 +142,6 @@ func TestMainConsumer_ProduceMessage_ProducerError_Gomock(t *testing.T) {
 		Produce(gomock.Any(), gomock.Any()).
 		Return(expectedErr)
 
-	// Act
 	err := c.produceMessage(
 		context.Background(),
 		"orders",
@@ -184,7 +149,6 @@ func TestMainConsumer_ProduceMessage_ProducerError_Gomock(t *testing.T) {
 		[]byte(`{"hello":"world"}`),
 	)
 
-	// Assert
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
 }
@@ -195,7 +159,6 @@ func TestMainConsumer_ProduceMessage_ContextCanceled_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
 	c := &mainConsumer{
@@ -210,7 +173,6 @@ func TestMainConsumer_ProduceMessage_ContextCanceled_Gomock(t *testing.T) {
 		Produce(gomock.Any(), gomock.Any()).
 		Return(nil)
 
-	// Act
 	err := c.produceMessage(
 		ctx,
 		"orders",
@@ -218,7 +180,6 @@ func TestMainConsumer_ProduceMessage_ContextCanceled_Gomock(t *testing.T) {
 		[]byte(`{"hello":"world"}`),
 	)
 
-	// Assert
 	require.Error(t, err)
 	require.ErrorIs(t, err, context.Canceled)
 }
@@ -229,7 +190,6 @@ func TestMainConsumer_ProduceMessage_DeliveryError_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
 	c := &mainConsumer{
@@ -254,7 +214,6 @@ func TestMainConsumer_ProduceMessage_DeliveryError_Gomock(t *testing.T) {
 			return nil
 		})
 
-	// Act
 	err := c.produceMessage(
 		context.Background(),
 		"orders",
@@ -262,7 +221,6 @@ func TestMainConsumer_ProduceMessage_DeliveryError_Gomock(t *testing.T) {
 		[]byte(`{"hello":"world"}`),
 	)
 
-	// Assert
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "delivery failed")
 }
@@ -273,7 +231,6 @@ func TestMainConsumer_ProduceDLQ_Success_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
@@ -319,10 +276,8 @@ func TestMainConsumer_ProduceDLQ_Success_Gomock(t *testing.T) {
 		CommitMessage(msg).
 		Return([]ckafka.TopicPartition{}, nil)
 
-	// Act
 	err := c.produceDLQ(context.Background(), msg, reason)
 
-	// Assert
 	require.NoError(t, err)
 	require.NotNil(t, producedMsg)
 	require.NotNil(t, producedMsg.TopicPartition.Topic)
@@ -347,7 +302,6 @@ func TestMainConsumer_ProduceDLQ_ProduceError_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
@@ -375,10 +329,8 @@ func TestMainConsumer_ProduceDLQ_ProduceError_Gomock(t *testing.T) {
 		Produce(gomock.Any(), gomock.Any()).
 		Return(expectedErr)
 
-	// Act
 	err := c.produceDLQ(context.Background(), msg, errors.New("invalid json"))
 
-	// Assert
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "produce message to dlq")
 	require.ErrorIs(t, err, expectedErr)
@@ -390,7 +342,6 @@ func TestMainConsumer_ProduceDLQ_CommitError_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 	producer := mocks.NewMockkafkaProducer(ctrl)
 
@@ -432,10 +383,8 @@ func TestMainConsumer_ProduceDLQ_CommitError_Gomock(t *testing.T) {
 		CommitMessage(msg).
 		Return(nil, expectedErr)
 
-	// Act
 	err := c.produceDLQ(context.Background(), msg, errors.New("invalid json"))
 
-	// Assert
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "commit invalid kafka message")
 	require.ErrorIs(t, err, expectedErr)
@@ -447,20 +396,17 @@ func TestMainConsumer_Run_MessageSuccess_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 	producer := mocks.NewMockkafkaProducer(ctrl)
 	notifier := mocks.NewMocknotifier(ctrl)
-	transactor := mocks.NewMocktransactor(ctrl)
 
 	c := &mainConsumer{
-		logger:     zap.NewNop(),
-		consumer:   consumer,
-		producer:   producer,
-		topic:      "orders",
-		dlqTopic:   "orders-dlq",
-		notifier:   notifier,
-		transactor: transactor,
+		logger:   zap.NewNop(),
+		consumer: consumer,
+		producer: producer,
+		topic:    "orders",
+		dlqTopic: "orders-dlq",
+		notifier: notifier,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -475,29 +421,19 @@ func TestMainConsumer_Run_MessageSuccess_Gomock(t *testing.T) {
 		},
 		Key: []byte("key-1"),
 		Value: []byte(`{
-			"user_id": 1,
-			"order_id": 100,
-			"status": "paid"
-		}`),
+            "user_id": 1,
+            "order_id": 100,
+            "status": "paid"
+        }`),
 	}
 
 	consumer.EXPECT().
 		Poll(timeoutPoll).
 		Return(msg)
 
-	transactor.EXPECT().
-		WithTx(gomock.Any(), gomock.Any()).
-		DoAndReturn(func(ctx context.Context, f func(context.Context) error) error {
-			return f(ctx)
-		})
-
+	// ТЕПЕРЬ ОЖИДАЕМ ПРЯМОЙ ВЫЗОВ НАШЕГО ОБНОВЛЕННОГО ХЕНДЛЕРА СУЩНОСТИ USECASE
 	notifier.EXPECT().
-		SendMessage(
-			gomock.Any(),
-			createKey(100, "paid", repository.KindNotification),
-			repository.KindNotification,
-			msg.Value,
-		).
+		SendMessageNotificationsKindHandler(gomock.Any(), msg.Value).
 		Return(nil)
 
 	consumer.EXPECT().
@@ -507,10 +443,8 @@ func TestMainConsumer_Run_MessageSuccess_Gomock(t *testing.T) {
 			return []ckafka.TopicPartition{}, nil
 		})
 
-	// Act
 	c.run(ctx)
 
-	// Assert
 	require.ErrorIs(t, ctx.Err(), context.Canceled)
 }
 
@@ -520,7 +454,6 @@ func TestMainConsumer_Run_AssignedPartitions_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 
 	c := &mainConsumer{
@@ -550,10 +483,8 @@ func TestMainConsumer_Run_AssignedPartitions_Gomock(t *testing.T) {
 			return nil
 		})
 
-	// Act
 	c.run(ctx)
 
-	// Assert
 	require.ErrorIs(t, ctx.Err(), context.Canceled)
 }
 
@@ -563,7 +494,6 @@ func TestMainConsumer_Run_RevokedPartitions_Gomock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	// Arrange
 	consumer := mocks.NewMockkafkaConsumer(ctrl)
 
 	c := &mainConsumer{
@@ -585,9 +515,7 @@ func TestMainConsumer_Run_RevokedPartitions_Gomock(t *testing.T) {
 			return nil
 		})
 
-	// Act
 	c.run(ctx)
 
-	// Assert
 	require.ErrorIs(t, ctx.Err(), context.Canceled)
 }

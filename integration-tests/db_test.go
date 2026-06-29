@@ -381,6 +381,3 @@ func TestConcurrentCreateOrderWithSingleItemInStock(t *testing.T) {
 		})
 	}
 }
-
-
-

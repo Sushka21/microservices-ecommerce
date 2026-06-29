@@ -8,9 +8,8 @@ import (
 	"strings"
 	"time"
 
-	ckafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/Sushka21/microservices-ecommerce/notifications/internal/config"
-	repository "github.com/Sushka21/microservices-ecommerce/notifications/internal/repository/inbox"
+	ckafka "github.com/confluentinc/confluent-kafka-go/v2/kafka"
 
 	"go.uber.org/zap"
 )
@@ -19,16 +18,7 @@ import (
 
 type (
 	notifier interface {
-		SendMessage(
-			ctx context.Context,
-			key string,
-			kind repository.Kind,
-			data []byte,
-		) error
-	}
-
-	transactor interface {
-		WithTx(ctx context.Context, f func(ctx context.Context) error) (err error)
+		SendMessageNotificationsKindHandler(ctx context.Context, data []byte) error
 	}
 
 	kafkaConsumer interface {
@@ -60,7 +50,6 @@ func RunMainConsumer(
 	logger *zap.Logger,
 	cfg *config.Config,
 	notifier notifier,
-	transactor transactor,
 ) error {
 	brokers := cfg.ConstructKafkaBrokers()
 	if len(brokers) == 0 {
@@ -68,14 +57,13 @@ func RunMainConsumer(
 	}
 
 	consumer, err := ckafka.NewConsumer(&ckafka.ConfigMap{
-		"bootstrap.servers":        joinBrokers(brokers), //nolint:goconst // kafka config key from confluent config map
+		"bootstrap.servers":        joinBrokers(brokers),
 		"group.id":                 cfg.Kafka.ConsumerGroup,
 		"auto.offset.reset":        "earliest",
 		"enable.auto.commit":       false,
 		"enable.auto.offset.store": false,
 		"session.timeout.ms":       sessionTimeoutConsumer,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -92,11 +80,7 @@ func RunMainConsumer(
 			zap.Error(err),
 			zap.String("brokers", joinBrokers(brokers)),
 		)
-
-		if closeErr := consumer.Close(); closeErr != nil {
-			logger.Error("close kafka consumer after producer init error", zap.Error(closeErr))
-		}
-
+		_ = consumer.Close()
 		return fmt.Errorf("create kafka producer: %w", err)
 	}
 
@@ -113,7 +97,6 @@ func RunMainConsumer(
 		producer,
 		cfg.Kafka.Topic,
 		notifier,
-		transactor,
 	)
 
 	if err := consumer.SubscribeTopics([]string{cfg.Kafka.Topic}, nil); err != nil {
@@ -138,8 +121,7 @@ type mainConsumer struct {
 	topic    string
 	dlqTopic string
 
-	notifier   notifier
-	transactor transactor
+	notifier notifier
 }
 
 func newMainConsumer(
@@ -148,16 +130,14 @@ func newMainConsumer(
 	producer kafkaProducer,
 	topic string,
 	notifier notifier,
-	transactor transactor,
 ) *mainConsumer {
 	return &mainConsumer{
-		logger:     logger,
-		consumer:   consumer,
-		producer:   producer,
-		topic:      topic,
-		dlqTopic:   topic + "-dlq",
-		notifier:   notifier,
-		transactor: transactor,
+		logger:   logger,
+		consumer: consumer,
+		producer: producer,
+		topic:    topic,
+		dlqTopic: topic + "-dlq",
+		notifier: notifier,
 	}
 }
 
@@ -181,98 +161,50 @@ func (c *mainConsumer) run(ctx context.Context) {
 				zap.String("topic", *e.TopicPartition.Topic),
 				zap.Int32("partition", e.TopicPartition.Partition),
 				zap.Int64("offset", int64(e.TopicPartition.Offset)),
-				zap.ByteString("key", e.Key),
-				zap.ByteString("value", e.Value),
 			)
 
 			var payload eventPayload
 			if err := json.Unmarshal(e.Value, &payload); err != nil {
 				if dlqErr := c.produceDLQ(ctx, e, err); dlqErr != nil {
-					c.logger.Error("add message to dlq",
-						zap.Error(dlqErr),
-						zap.Int32("partition", e.TopicPartition.Partition),
-						zap.Int64("offset", int64(e.TopicPartition.Offset)),
-						zap.ByteString("key", e.Key),
-					)
-
+					c.logger.Error("add message to dlq", zap.Error(dlqErr))
 					time.Sleep(time.Second)
 				}
 				continue
 			}
-			// inbox
-			kinds := []repository.Kind{
-				repository.KindNotification,
-				// repository.KindTelegram,
-			}
-			if err := c.transactor.WithTx(ctx, func(ctx context.Context) error {
-				for _, kind := range kinds {
-					idempotencyKey := createKey(payload.OrderID, payload.Status, kind)
 
-					if err := c.notifier.SendMessage(ctx, idempotencyKey, kind, e.Value); err != nil {
-						c.logger.Error("save inbox message",
-							zap.Error(err),
-							zap.Int64("user_id", payload.UserID),
-							zap.Int64("order_id", payload.OrderID),
-							zap.String("status", payload.Status),
-							zap.Any("kind", kind),
-						)
-						return err
-					}
-				}
-
-				return nil
-			}); err != nil {
-				c.logger.Error("process inbox message",
+			if err := c.notifier.SendMessageNotificationsKindHandler(ctx, e.Value); err != nil {
+				c.logger.Error("failed to send HTTP notification from kafka event",
 					zap.Error(err),
-					zap.Int32("partition", e.TopicPartition.Partition),
-					zap.Int64("offset", int64(e.TopicPartition.Offset)),
-					zap.ByteString("key", e.Key),
+					zap.Int64("order_id", payload.OrderID),
 				)
-
 				time.Sleep(time.Second)
 				continue
 			}
 
 			_, err := c.consumer.CommitMessage(e)
 			if err != nil {
-				c.logger.Error("kafka commit",
-					zap.Error(err),
-					zap.Int32("partition", e.TopicPartition.Partition),
-					zap.Int64("offset", int64(e.TopicPartition.Offset)),
-				)
-
+				c.logger.Error("kafka commit failed", zap.Error(err))
 				time.Sleep(1 * time.Second)
 				continue
 			}
 
 			c.logger.Info("message committed",
 				zap.String("topic", *e.TopicPartition.Topic),
-				zap.Int32("partition", e.TopicPartition.Partition),
 				zap.Int64("offset", int64(e.TopicPartition.Offset)),
 			)
 
 		case ckafka.Error:
-			c.logger.Warn("kafka poll error",
-				zap.String("code", e.Code().String()),
-				zap.Error(e),
-			)
-
+			c.logger.Warn("kafka poll error", zap.Error(e))
 			time.Sleep(1 * time.Second)
 
 		case ckafka.AssignedPartitions:
-			c.logger.Info("kafka partitions assigned",
-				zap.Any("partitions", e.Partitions),
-			)
-
+			c.logger.Info("kafka partitions assigned", zap.Any("partitions", e.Partitions))
 			if err := c.consumer.Assign(e.Partitions); err != nil {
 				c.logger.Error("kafka assign partitions", zap.Error(err))
 			}
 
 		case ckafka.RevokedPartitions:
-			c.logger.Info("kafka partitions revoked",
-				zap.Any("partitions", e.Partitions),
-			)
-
+			c.logger.Info("kafka partitions revoked", zap.Any("partitions", e.Partitions))
 			if err := c.consumer.Unassign(); err != nil {
 				c.logger.Error("kafka unassign partitions", zap.Error(err))
 			}
@@ -293,7 +225,6 @@ func (c *mainConsumer) produceMessage(ctx context.Context, topic string, key, va
 		Key:   key,
 		Value: value,
 	}, deliveryChan)
-
 	if err != nil {
 		return err
 	}
@@ -310,14 +241,8 @@ func (c *mainConsumer) produceMessage(ctx context.Context, topic string, key, va
 	return nil
 }
 
-func (c *mainConsumer) produceDLQ(
-	ctx context.Context,
-	msg *ckafka.Message,
-	reason error,
-) error {
-	c.logger.Error("kafka message unmarshal",
-		zap.Error(reason),
-	)
+func (c *mainConsumer) produceDLQ(ctx context.Context, msg *ckafka.Message, reason error) error {
+	c.logger.Error("kafka message unmarshal failed, redirecting to DLQ", zap.Error(reason))
 
 	dlqPayload, err := json.Marshal(map[string]any{
 		"original_topic":     *msg.TopicPartition.Topic,
@@ -328,7 +253,6 @@ func (c *mainConsumer) produceDLQ(
 		"error":              reason.Error(),
 		"failed_at":          time.Now(),
 	})
-
 	if err != nil {
 		return fmt.Errorf("marshal dlq payload: %w", err)
 	}
@@ -341,16 +265,7 @@ func (c *mainConsumer) produceDLQ(
 		return fmt.Errorf("commit invalid kafka message: %w", err)
 	}
 
-	c.logger.Info("invalid kafka message sent to dlq and committed",
-		zap.String("dlq_topic", c.dlqTopic),
-		zap.Int32("partition", msg.TopicPartition.Partition),
-		zap.Int64("offset", int64(msg.TopicPartition.Offset)),
-	)
 	return nil
-}
-
-func createKey(orderID int64, status string, kind repository.Kind) string {
-	return fmt.Sprintf("%d_%s_%v", orderID, status, kind)
 }
 
 func joinBrokers(brokers []string) string {

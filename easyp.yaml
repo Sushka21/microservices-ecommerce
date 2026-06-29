@@ -14,6 +14,7 @@ generate:
       - directory: "./cart/api"
       - directory: "./loms/api"
       - directory: "./notifications/api"
+      - directory : "./auth/api"
     plugins:
         - name: go
           out: ./pkg/generated

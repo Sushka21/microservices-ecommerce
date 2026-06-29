@@ -90,7 +90,7 @@ func (o *outboxImpl) worker(
 					return err
 				}
 
-				o.logger.Info("messages fetched", zap.Int("size", len(messages)))
+				// o.logger.Info("messages fetched", zap.Int("size", len(messages)))
 
 				successKeys := make([]string, 0, len(messages)/2)
 				failedKeys := make([]string, 0, len(messages)/2)

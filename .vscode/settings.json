@@ -1,5 +1,6 @@
 {
        "dataworkspace.excludedProjects": [
               "test/test.sqlproj"
-       ]
+       ],
+       "CodeGPT.apiKey": "Google AI Studio"
 }

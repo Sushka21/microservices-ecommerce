@@ -13,9 +13,9 @@ import (
 	db "github.com/Sushka21/microservices-ecommerce/cart/migrations"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	lomsgrpc "github.com/Sushka21/microservices-ecommerce/cart/internal/adapter/loms/grpc"
 	productgrpc "github.com/Sushka21/microservices-ecommerce/cart/internal/adapter/product/grpc"
+	grpcruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 
 	cartuscase "github.com/Sushka21/microservices-ecommerce/cart/internal/usecase/cart"
 	itemuscase "github.com/Sushka21/microservices-ecommerce/cart/internal/usecase/item"
@@ -64,6 +64,7 @@ func Run(logger *zap.Logger, cfg *config.Config) error {
 		cfg.Clients.LOMSGrpcAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
+
 	if err != nil {
 		logger.Error("failed to connect to server", zap.Error(err))
 		return err
