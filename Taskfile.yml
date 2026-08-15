@@ -223,3 +223,7 @@ tasks:
           down -v --remove-orphans || true
 
         docker-compose -f docker-compose.yml up --build
+  unit-test:
+    desc: "Run unit tests across all workspace modules"
+    cmds:
+      - go test -v -race -cover ./cart/... ./loms/... ./notifications/...
